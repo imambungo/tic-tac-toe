@@ -18,7 +18,7 @@ ol, ul {
 }
 
 .square {
-  background: #fff;
+  background: #fff; /* background warna putih */
   border: 1px solid #999;
   float: left;
   font-size: 24px;
@@ -42,7 +42,7 @@ ol, ul {
 
 .game {
   display: flex;
-  flex-direction: row;
+  flex-direction: row;  /* horizontal */
 }
 
 .game-info {

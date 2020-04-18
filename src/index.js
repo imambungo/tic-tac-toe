@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+// it's called function component
+// Flutter stateless widget equivalent (kinda)
 function Square(props) {
 	return (
 		<button className="square"
@@ -57,39 +59,62 @@ class Game extends React.Component {
 		};
 	}
 
+	// i = number (0-8)
+	// klik kotak, bukan jump to step
 	handleClick(i) {
+		                                   //    0    sampai   stepNumber
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
+		                           // ingat! krn history isinya objek, maka yg
+		                           // dicopy slice() adalah object reference
+
+		                // elemen (objek berisi squares) terakhir history
 		const current = history[history.length - 1];
+
+		                                // supaya tdk nge-mutate current.squares
 		const squares = current.squares.slice();
+
+		// jika sudah ada pemenangnya atau square-nya sudah di-klik
 		if (calculateWinner(squares) || squares[i]) {
 			return;
 		}
 		squares[i] = this.state.xIsNext ? 'X' : 'O';
-		this.setState({
-			history: history.concat([{
-				squares: squares,
-			}]),
-			stepNumber: history.length,
-			xIsNext: !this.state.xIsNext,
-		});
+		     // as a reminder, setState nge-invoke render()
+		this.setState(state => ({
+			         // history yg sudah dibatasi dg stepNumber
+			history: history.concat([
+				{
+					         // squares current, dimana index ke-i sudah berisi
+					squares: squares,
+				}
+			]),
+			//            // ini history fungsi ini, bukan this.state
+			//stepNumber: history.length,
+			stepNumber: state.stepNumber + 1,
+			xIsNext: !state.xIsNext,
+		}));
 	}
 
+	// step = number
 	jumpTo(step) {
 		this.setState({
+			// state updates are merged, no need to include history
 			stepNumber: step,
 			xIsNext: (step % 2) === 0,
 		});
 	}
 
 	render() {
+		// ingat, di dalam render kita cuma nge-render!
+		// jangan nge-modify/mutate this.state
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];
 		const winner = calculateWinner(current.squares);
 
+		                                 // index
 		const moves = history.map((step, move) => {
 			const desc = move ? 'Go to move #' + move
-			                  : 'Go to game start';
-			// awas kamu key={move}
+			                  : 'Go to game start';  // move == 0
+			// key di bawah nggak ngefek?
 			return (
 				<li key={move}>
 					<button onClick={() => this.jumpTo(move)}>
@@ -108,6 +133,8 @@ class Game extends React.Component {
 
 		return (
 			<div className="game">
+				{/*sebenarnya nggak perlu className game-board
+					even more, tidak perlu div at all, langsung Board aja*/}
 				<div className="game-board">
 					<Board
 						squares={current.squares}
@@ -123,8 +150,12 @@ class Game extends React.Component {
 	}
 }
 
+/*
+ * squares = array dg panjang 9 (9 kotak)
+ * return pemenang ('X' atau 'O' atau null)
+ */
 const calculateWinner = (squares) => {
-	const lines = [
+	const lines = [  // kombinasi menang
 		[0, 1, 2],
 		[3, 4, 5],
 		[6, 7, 8],
@@ -134,8 +165,10 @@ const calculateWinner = (squares) => {
 		[0, 4, 8],
 		[2, 4, 6],
 	];
-	for (let i = 0; i < lines.length; i++) {
+	for (let i = 0; i < lines.length; i++) {  // untuk setiap kombinasi
 		const [a, b, c] = lines[i];
+
+		// jika tidak null dan semuanya sama
 		if (squares[a] && squares[a] === squares[b]
 		               && squares[a] === squares[c])
 		{
@@ -147,6 +180,7 @@ const calculateWinner = (squares) => {
 
 // ========================================
 
+// coba cek aplikasi react yg lain gini jg nggak
 ReactDOM.render(
 	<Game />,
 	document.getElementById('root')
