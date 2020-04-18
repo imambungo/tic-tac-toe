@@ -61,7 +61,7 @@ class Game extends React.Component {
 
 	// i = number (0-8)
 	// klik kotak, bukan jump to step
-	handleClick(i) {
+	handleClick = (i) => {
 		                                   //    0    sampai   stepNumber
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
 		                           // ingat! krn history isinya objek, maka yg
@@ -138,7 +138,7 @@ class Game extends React.Component {
 				<div className="game-board">
 					<Board
 						squares={current.squares}
-						onClick={(i) => this.handleClick(i)}
+						onClick={this.handleClick}
 					/>
 				</div>
 				<div className="game-info">
