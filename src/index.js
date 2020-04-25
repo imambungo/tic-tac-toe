@@ -24,8 +24,7 @@ class Board extends React.Component {
 				value={squares[i]}
 				onClick={() => onClick(i)}
 				highlight={
-					winPattern ? winPattern.indexOf(i) !== -1 ? true : false
-					           : null
+					winPattern && winPattern.indexOf(i) !== -1
 				}
 			/>
 		);
