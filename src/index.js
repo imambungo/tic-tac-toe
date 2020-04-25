@@ -62,12 +62,7 @@ class Game extends React.Component {
 	// i = number (0-8)
 	// klik kotak, bukan jump to step
 	handleClick = (i) => {
-		                                   //    0    sampai   stepNumber
 		const history = this.state.history.slice(0, this.state.stepNumber + 1);
-		                           // ingat! krn history isinya objek, maka yg
-		                           // dicopy slice() adalah object reference
-
-		                // elemen (objek berisi squares) terakhir history
 		const current = history[history.length - 1];
 
 		                                // supaya tdk nge-mutate current.squares
@@ -78,13 +73,12 @@ class Game extends React.Component {
 			return;
 		}
 		squares[i] = this.state.xIsNext ? 'X' : 'O';
-		     // as a reminder, setState nge-invoke render()
 		this.setState(state => ({
-			         // history yg sudah dibatasi dg stepNumber
 			history: history.concat([
 				{
 					         // squares current, dimana index ke-i sudah berisi
 					squares: squares,
+					tile: i
 				}
 			]),
 			//            // ini history fungsi ini, bukan this.state
@@ -111,9 +105,11 @@ class Game extends React.Component {
 		const winner = calculateWinner(current.squares);
 
 		                                 // index
-		const moves = history.map((step, move) => {
-			const desc = move ? 'Go to move #' + move
-			                  : 'Go to game start';  // move == 0
+		const moves = history.map(({tile}, move) => {
+			const col = (tile % 3) + 1;
+			const row = Math.floor(tile / 3) + 1
+			const desc = move ? `Go to move #${move} (${col},${row})`
+			                  : 'Go to game start';
 			// key di bawah nggak ngefek?
 			return (
 				<li key={move}>
