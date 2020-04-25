@@ -26,7 +26,7 @@ class Board extends React.Component {
 
 	render() {
 		return (
-			<div>
+			<>
 				<div className="board-row">
 					{this.renderSquare(0)}
 					{this.renderSquare(1)}
@@ -42,7 +42,7 @@ class Board extends React.Component {
 					{this.renderSquare(7)}
 					{this.renderSquare(8)}
 				</div>
-			</div>
+			</>
 		);
 	}
 }
@@ -165,8 +165,8 @@ const calculateWinner = (squares) => {
 		[0, 4, 8],
 		[2, 4, 6],
 	];
-	for (let i = 0; i < lines.length; i++) {  // untuk setiap kombinasi
-		const [a, b, c] = lines[i];
+	for (let winPattern of lines) {
+		const [a, b, c] = winPattern;
 
 		// jika tidak null dan semuanya sama
 		if (squares[a] && squares[a] === squares[b]
