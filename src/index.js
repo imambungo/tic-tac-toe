@@ -46,6 +46,10 @@ class Board extends React.Component {
 	}
 }
 
+function Toggle({value, onToggle}) {
+	return <button onClick={onToggle}>{value}</button>
+}
+
 class Game extends React.Component {
 	constructor(props) {
 		super(props);
@@ -55,6 +59,8 @@ class Game extends React.Component {
 			}],
 			stepNumber: 0,
 			xIsNext: true,
+			ascending: true,
+			toggleValue: 'descending',
 		};
 	}
 
@@ -96,6 +102,14 @@ class Game extends React.Component {
 		});
 	}
 
+	onToggle = () => {
+		console.log('cubo')
+		this.setState(({ascending}) => ({
+			ascending: !ascending,
+			toggleValue: ascending ? 'ascending' : 'descending',
+		}));
+	}
+
 	render() {
 		// ingat, di dalam render kita cuma nge-render!
 		// jangan nge-modify/mutate this.state
@@ -104,7 +118,7 @@ class Game extends React.Component {
 		const winner = calculateWinner(current.squares);
 
 		                                 // index
-		const moves = history.map(({tile}, move) => {
+		let moves = history.map(({tile}, move) => {
 			const col = (tile % 3) + 1;
 			const row = Math.floor(tile / 3) + 1
 			let desc = move ? `Go to move #${move} (${col},${row})`
@@ -121,6 +135,9 @@ class Game extends React.Component {
 				</li>
 			);
 		});
+		if (!this.state.ascending) {
+			moves.reverse();
+		}
 
 		let status;
 		if (winner) {
@@ -141,7 +158,14 @@ class Game extends React.Component {
 				</div>
 				<div className="game-info">
 					<div>{status}</div>
-					<ol>{moves}</ol>
+					<Toggle
+						value={this.state.toggleValue}
+						onToggle={this.onToggle}
+					/>
+					{
+						!this.state.ascending ? <ol reversed>{moves}</ol>
+						                      : <ol>{moves}</ol>
+					}
 				</div>
 			</div>
 		);
