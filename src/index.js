@@ -5,21 +5,28 @@ import './index.css';
 // it's called function component
 // Flutter stateless widget equivalent (kinda)
 function Square(props) {
-	return (
+	const button = (
 		<button className="square"
 		        onClick={props.onClick}
+		        style={props.highlight ? {backgroundColor: '#888'} : {}}
 		>
 			{props.value}
 		</button>
 	);
+	return button;
 }
 
 class Board extends React.Component {
 	renderSquare(i) {
+		const {squares, onClick, winPattern} = this.props;
 		return (
 			<Square
-				value={this.props.squares[i]}
-				onClick={() => this.props.onClick(i)}
+				value={squares[i]}
+				onClick={() => onClick(i)}
+				highlight={
+					winPattern ? winPattern.indexOf(i) !== -1 ? true : false
+					           : null
+				}
 			/>
 		);
 	}
@@ -61,7 +68,36 @@ class Game extends React.Component {
 			xIsNext: true,
 			ascending: true,
 			toggleValue: 'descending',
+			winPattern: null,
 		};
+	}
+
+	/*
+	 * squares = array dg panjang 9 (9 kotak)
+	 * return pemenang ('X' atau 'O' atau null)
+	 */
+	calculateWinner = (squares) => {
+		const lines = [  // kombinasi menang
+			[0, 1, 2],
+			[3, 4, 5],
+			[6, 7, 8],
+			[0, 3, 6],
+			[1, 4, 7],
+			[2, 5, 8],
+			[0, 4, 8],
+			[2, 4, 6],
+		];
+		for (let winPattern of lines) {
+			const [a, b, c] = winPattern;
+
+			// jika tidak null dan semuanya sama
+			if (squares[a] && squares[a] === squares[b]
+			               && squares[a] === squares[c])
+			{
+				return [squares[a], winPattern];
+			}
+		}
+		return [null];
 	}
 
 	// i = number (0-8)
@@ -74,7 +110,7 @@ class Game extends React.Component {
 		const squares = current.squares.slice();
 
 		// jika sudah ada pemenangnya atau square-nya sudah di-klik
-		if (calculateWinner(squares) || squares[i]) {
+		if (this.calculateWinner(squares)[0] || squares[i]) {
 			return;
 		}
 		squares[i] = this.state.xIsNext ? 'X' : 'O';
@@ -115,7 +151,7 @@ class Game extends React.Component {
 		// jangan nge-modify/mutate this.state
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];
-		const winner = calculateWinner(current.squares);
+		const [winner, winPattern] = this.calculateWinner(current.squares);
 
 		                                 // index
 		let moves = history.map(({tile}, move) => {
@@ -154,6 +190,7 @@ class Game extends React.Component {
 					<Board
 						squares={current.squares}
 						onClick={this.handleClick}
+						winPattern={winPattern}
 					/>
 				</div>
 				<div className="game-info">
@@ -170,34 +207,6 @@ class Game extends React.Component {
 			</div>
 		);
 	}
-}
-
-/*
- * squares = array dg panjang 9 (9 kotak)
- * return pemenang ('X' atau 'O' atau null)
- */
-const calculateWinner = (squares) => {
-	const lines = [  // kombinasi menang
-		[0, 1, 2],
-		[3, 4, 5],
-		[6, 7, 8],
-		[0, 3, 6],
-		[1, 4, 7],
-		[2, 5, 8],
-		[0, 4, 8],
-		[2, 4, 6],
-	];
-	for (let winPattern of lines) {
-		const [a, b, c] = winPattern;
-
-		// jika tidak null dan semuanya sama
-		if (squares[a] && squares[a] === squares[b]
-		               && squares[a] === squares[c])
-		{
-			return squares[a];
-		}
-	}
-	return null;
 }
 
 // ========================================
