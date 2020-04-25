@@ -108,8 +108,11 @@ class Game extends React.Component {
 		const moves = history.map(({tile}, move) => {
 			const col = (tile % 3) + 1;
 			const row = Math.floor(tile / 3) + 1
-			const desc = move ? `Go to move #${move} (${col},${row})`
-			                  : 'Go to game start';
+			let desc = move ? `Go to move #${move} (${col},${row})`
+			                : 'Go to game start';
+			if (move === this.state.stepNumber) {
+				desc = <b>{desc}</b>;
+			}
 			// key di bawah nggak ngefek?
 			return (
 				<li key={move}>
