@@ -145,12 +145,22 @@ class Game extends React.Component {
 		}));
 	}
 
+	isTie = (squares) => {
+		if (squares.some(tile => tile === null)) {
+			return false;
+		} else {
+			// because isTie check comes after calculateWinner check
+			return true;
+		}
+	}
+
 	render() {
 		// ingat, di dalam render kita cuma nge-render!
 		// jangan nge-modify/mutate this.state
 		const history = this.state.history;
 		const current = history[this.state.stepNumber];
 		const [winner, winPattern] = this.calculateWinner(current.squares);
+		const tie = this.isTie(current.squares);
 
 		                                 // index
 		let moves = history.map(({tile}, move) => {
@@ -177,6 +187,8 @@ class Game extends React.Component {
 		let status;
 		if (winner) {
 			status = 'Winner: ' + winner;
+		} else if (tie) {
+			status = 'Draw';
 		} else {
 			status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
 		}
