@@ -60,7 +60,6 @@ function Game(props) {
 	const [xIsNext, setXIsNext] = useState(true);
 	const [ascending, setAscending] = useState(true);
 	const [toggleValue, setToggleValue] = useState('descending');
-	//const [winPattern, setWinPattern] = useState(null);
 
 	/*
 	 * squares = array dg panjang 9 (9 kotak)
@@ -188,7 +187,7 @@ function Game(props) {
 				/>
 				{
 					!ascending ? <ol reversed>{moves}</ol>
-					                      : <ol>{moves}</ol>
+					           : <ol>{moves}</ol>
 				}
 			</div>
 		</div>
