@@ -1,9 +1,7 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-// it's called function component
-// Flutter stateless widget equivalent (kinda)
 function Square(props) {
 	const button = (
 		<button className="square"
@@ -56,26 +54,19 @@ function Toggle({value, onToggle}) {
 	return <button onClick={onToggle}>{value}</button>
 }
 
-class Game extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			history: [{
-				squares: Array(9).fill(null),
-			}],
-			stepNumber: 0,
-			xIsNext: true,
-			ascending: true,
-			toggleValue: 'descending',
-			winPattern: null,
-		};
-	}
+function Game(props) {
+	const [history, setHistory] = useState([{squares: Array(9).fill(null)}]);
+	const [stepNumber, setStepNumber] = useState(0);
+	const [xIsNext, setXIsNext] = useState(true);
+	const [ascending, setAscending] = useState(true);
+	const [toggleValue, setToggleValue] = useState('descending');
+	//const [winPattern, setWinPattern] = useState(null);
 
 	/*
 	 * squares = array dg panjang 9 (9 kotak)
 	 * return pemenang ('X' atau 'O' atau null)
 	 */
-	calculateWinner = (squares) => {
+	const calculateWinner = (squares) => {
 		const lines = [  // kombinasi menang
 			[0, 1, 2],
 			[3, 4, 5],
@@ -101,50 +92,38 @@ class Game extends React.Component {
 
 	// i = number (0-8)
 	// klik kotak, bukan jump to step
-	handleClick = (i) => {
-		const history = this.state.history.slice(0, this.state.stepNumber + 1);
-		const current = history[history.length - 1];
+	const handleClick = (i) => {
+		const slicedHistory = history.slice(0, stepNumber + 1);
+		const current = slicedHistory[slicedHistory.length - 1];
 
 		                                // supaya tdk nge-mutate current.squares
 		const squares = current.squares.slice();
 
 		// jika sudah ada pemenangnya atau square-nya sudah di-klik
-		if (this.calculateWinner(squares)[0] || squares[i]) {
+		if (calculateWinner(squares)[0] || squares[i]) {
 			return;
 		}
-		squares[i] = this.state.xIsNext ? 'X' : 'O';
-		this.setState(state => ({
-			history: history.concat([
-				{
-					         // squares current, dimana index ke-i sudah berisi
-					squares: squares,
-					tile: i
-				}
-			]),
-			//            // ini history fungsi ini, bukan this.state
-			//stepNumber: history.length,
-			stepNumber: state.stepNumber + 1,
-			xIsNext: !state.xIsNext,
-		}));
+		squares[i] = xIsNext ? 'X' : 'O';
+		setHistory(slicedHistory.concat([{
+			squares: squares,
+			tile: i
+		}]));
+		setStepNumber(prevStepNumber => prevStepNumber + 1);
+		setXIsNext(prevXIsNext => !prevXIsNext);
 	}
 
 	// step = number
-	jumpTo(step) {
-		this.setState({
-			// state updates are merged, no need to include history
-			stepNumber: step,
-			xIsNext: (step % 2) === 0,
-		});
+	const jumpTo = step => {
+		setStepNumber(step);
+		setXIsNext((step % 2) === 0);
 	}
 
-	onToggle = () => {
-		this.setState(({ascending}) => ({
-			ascending: !ascending,
-			toggleValue: ascending ? 'ascending' : 'descending',
-		}));
+	const onToggle = () => {
+		setAscending(prevAscending => !prevAscending);
+		setToggleValue(ascending ? 'ascending' : 'descending');
 	}
 
-	isTie = (squares) => {
+	const isTie = (squares) => {
 		if (squares.some(tile => tile === null)) {
 			return false;
 		} else {
@@ -153,70 +132,67 @@ class Game extends React.Component {
 		}
 	}
 
-	render() {
-		// ingat, di dalam render kita cuma nge-render!
-		// jangan nge-modify/mutate this.state
-		const history = this.state.history;
-		const current = history[this.state.stepNumber];
-		const [winner, winPattern] = this.calculateWinner(current.squares);
-		const tie = this.isTie(current.squares);
+	// ingat, di dalam render kita cuma nge-render!
+	// jangan nge-modify/mutate this.state
+	const current = history[stepNumber];
+	const [winner, winPattern] = calculateWinner(current.squares);
+	const tie = isTie(current.squares);
 
-		                                 // index
-		let moves = history.map(({tile}, move) => {
-			const col = (tile % 3) + 1;
-			const row = Math.floor(tile / 3) + 1
-			let desc = move ? `Go to move #${move} (${col},${row})`
-			                : 'Go to game start';
-			if (move === this.state.stepNumber) {
-				desc = <b>{desc}</b>;
-			}
-			// key di bawah nggak ngefek?
-			return (
-				<li key={move}>
-					<button onClick={() => this.jumpTo(move)}>
-						{desc}
-					</button>
-				</li>
-			);
-		});
-		if (!this.state.ascending) {
-			moves.reverse();
+	                                 // index
+	let moves = history.map(({tile}, move) => {
+		const col = (tile % 3) + 1;
+		const row = Math.floor(tile / 3) + 1
+		let desc = move ? `Go to move #${move} (${col},${row})`
+		                : 'Go to game start';
+		if (move === stepNumber) {
+			desc = <b>{desc}</b>;
 		}
-
-		let status;
-		if (winner) {
-			status = 'Winner: ' + winner;
-		} else if (tie) {
-			status = 'Draw';
-		} else {
-			status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-		}
-
+		// key di bawah nggak ngefek?
 		return (
-			<div className="game">
-				{/*sebenarnya nggak perlu className game-board
-					even more, tidak perlu div at all, langsung Board aja*/}
-				<div className="game-board">
-					<Board
-						squares={current.squares}
-						onClick={this.handleClick}
-						winPattern={winPattern}
-					/>
-				</div>
-				<div className="game-info">
-					<div>{status}</div>
-					<Toggle
-						value={this.state.toggleValue}
-						onToggle={this.onToggle}
-					/>
-					{
-						!this.state.ascending ? <ol reversed>{moves}</ol>
-						                      : <ol>{moves}</ol>
-					}
-				</div>
-			</div>
+			<li key={move}>
+				<button onClick={() => jumpTo(move)}>
+					{desc}
+				</button>
+			</li>
 		);
+	});
+	if (!ascending) {
+		moves.reverse();
 	}
+
+	let status;
+	if (winner) {
+		status = 'Winner: ' + winner;
+	} else if (tie) {
+		status = 'Draw';
+	} else {
+		status = 'Next player: ' + (xIsNext ? 'X' : 'O');
+	}
+
+	return (
+		<div className="game">
+			{/*sebenarnya nggak perlu className game-board
+				even more, tidak perlu div at all, langsung Board aja*/}
+			<div className="game-board">
+				<Board
+					squares={current.squares}
+					onClick={handleClick}
+					winPattern={winPattern}
+				/>
+			</div>
+			<div className="game-info">
+				<div>{status}</div>
+				<Toggle
+					value={toggleValue}
+					onToggle={onToggle}
+				/>
+				{
+					!ascending ? <ol reversed>{moves}</ol>
+					                      : <ol>{moves}</ol>
+				}
+			</div>
+		</div>
+	);
 }
 
 // ========================================
