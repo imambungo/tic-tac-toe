@@ -16,41 +16,41 @@ function Square(props) {
 	return button;
 }
 
-class Board extends React.Component {
-	renderSquare(i) {
-		const {squares, onClick, winPattern} = this.props;
+
+function Board(props) {
+	const renderSquare = i => {
+		const {squares, onClick, winPattern} = props;
 		return (
 			<Square
-				value={squares[i]}
-				onClick={() => onClick(i)}
-				highlight={
-					winPattern && winPattern.indexOf(i) !== -1
-				}
+			value={squares[i]}
+			onClick={() => onClick(i)}
+			highlight={
+				winPattern && winPattern.indexOf(i) !== -1
+			}
 			/>
 		);
 	}
 
-	render() {
-		let squareIndex = 0;
-		let squares = [];
-		for (let i = 0; i < 3; ++i) {
-			let squaresRow = [];
-			for (let j = 0; j < 3; ++j) {
-				squaresRow.push(this.renderSquare(squareIndex++));
-			}
-			squares.push(
-				<div className="board-row">
-					{squaresRow}
-				</div>
-			);
+	let squareIndex = 0;
+	let squares = [];
+	for (let i = 0; i < 3; ++i) {
+		let squaresRow = [];
+		for (let j = 0; j < 3; ++j) {
+			squaresRow.push(renderSquare(squareIndex++));
 		}
-		return (
-			<>
-				{squares}
-			</>
+		squares.push(
+			<div className="board-row">
+				{squaresRow}
+			</div>
 		);
 	}
+	return (
+		<>
+			{squares}
+		</>
+	);
 }
+
 
 function Toggle({value, onToggle}) {
 	return <button onClick={onToggle}>{value}</button>
@@ -138,7 +138,6 @@ class Game extends React.Component {
 	}
 
 	onToggle = () => {
-		console.log('cubo')
 		this.setState(({ascending}) => ({
 			ascending: !ascending,
 			toggleValue: ascending ? 'ascending' : 'descending',
@@ -222,7 +221,6 @@ class Game extends React.Component {
 
 // ========================================
 
-// coba cek aplikasi react yg lain gini jg nggak
 ReactDOM.render(
 	<Game />,
 	document.getElementById('root')
